@@ -10,6 +10,6 @@
     "test:all": "npm run test --workspaces --if-present"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=24"
   }
 }
