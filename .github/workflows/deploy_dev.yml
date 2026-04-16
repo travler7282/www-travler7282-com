@@ -8,6 +8,9 @@ jobs:
   deploy:
     environment: dev
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents:
 
     steps:
       - name: Checkout code
