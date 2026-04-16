@@ -43,7 +43,7 @@ jobs:
           
           # Angular 17+ builds to a subfolder within dist
           if [ -d "apps/angular-app/dist/angular-app/browser" ]; then
-            cp -r apps/angular-app/dist/angular-app/browser ./deploy/angular
+            cp -r apps/angular-app/dist/angular-app/browser/. ./deploy/angular/
           fi
 
       - name: Configure AWS credentials
