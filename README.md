@@ -1,4 +1,4 @@
-# www-travler7282-com-frontend
+# www-travler7282-com
 
 Frontend for www.travler7282.com a portfolio website showcasing front end work
 by Michael Hunt (travler7282). The root of the site is the landing-page app; this
