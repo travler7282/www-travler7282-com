@@ -1,11 +1,13 @@
 # www-travler7282-com
 
-Frontend for www.travler7282.com a portfolio website showcasing front end work
-by Michael Hunt (travler7282). The root of the site is the landing-page app; this
-is a Vite app built without a UI framework. The landing page is a portfolio starting point
-where the visitor can explore information about me and select an app from the
-showcase. Each app is displayed along with the tech stack and clicking on an app
-opens it in the browser.
+The www-travler7282-com repository is the home of the www.travler7282.com
+website showcasing work by Michael Hunt (travler7282). The root of the site
+is the landing-page app; this is a Vite app built without a UI framework.
+The landing page is a portfolio starting point where the visitor explores
+information about me and selects an app from the showcase. Each app is 
+displayed along with the tech stack and clicking on an app opens it in the
+browser. There are other features, links, skills, images, and items on the
+page as well.
 
 The website is distributed on AWS CloudFront to provide a worldwide CDN. The
 site is distributed to edge devices which then cache and deliver content at
