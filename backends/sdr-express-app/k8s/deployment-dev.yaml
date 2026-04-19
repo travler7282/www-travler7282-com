@@ -5,7 +5,7 @@ metadata:
   labels:
     app: sdr-express-app-dev
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: sdr-express-app-dev
@@ -78,7 +78,7 @@ spec:
     - host: dev-api.travler7282.com
       http:
         paths:
-          - path: /
+          - path: /srdx/api/v1
             pathType: Prefix
             backend:
               service:
