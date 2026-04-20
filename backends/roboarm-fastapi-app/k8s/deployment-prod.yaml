@@ -20,6 +20,13 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        # Video device group IDs vary across distros/cloud images.
+        # Keep a small allowlist of common gids so /dev/video* is readable.
+        supplementalGroups:
+          - 39
+          - 44
+          - 986
+          - 998
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -38,6 +45,8 @@ spec:
                 - NET_RAW
           imagePullPolicy: IfNotPresent
           env:
+            - name: ROBOARM_CAMERA_DEVICE
+              value: /dev/video0
             - name: ROBOARM_CORS_ALLOWED_ORIGINS
               value: https://travler7282.com,https://www.travler7282.com,https://api.travler7282.com
           ports:
@@ -52,6 +61,9 @@ spec:
           volumeMounts:
             - name: dbus-socket
               mountPath: /run/dbus/system_bus_socket
+            - name: camera-device
+              mountPath: /dev/video0
+              readOnly: true
             - name: tmp-volume
               mountPath: /tmp
           readinessProbe:
@@ -71,6 +83,10 @@ spec:
           hostPath:
             path: /run/dbus/system_bus_socket
             type: Socket
+        - name: camera-device
+          hostPath:
+            path: /dev/video0
+            type: CharDevice
         - name: tmp-volume
           # Necessary for FastAPI/Uvicorn temp files when root FS is read-only
           emptyDir: {}
