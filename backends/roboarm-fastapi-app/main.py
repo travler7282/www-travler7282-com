@@ -7,6 +7,7 @@ from typing import Any, List, Optional
 
 from bleak import BleakClient, BleakScanner
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
 
@@ -21,6 +22,20 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("roboarm-backend")
 
 app = FastAPI(title="RoboArm BLE Controller")
+
+cors_origins = [origin.strip() for origin in os.getenv("ROBOARM_CORS_ALLOWED_ORIGINS", "*").split(",") if origin.strip()]
+if not cors_origins:
+    cors_origins = ["*"]
+
+allow_credentials = "*" not in cors_origins
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=allow_credentials,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 CAMERA_DEVICE = os.getenv("ROBOARM_CAMERA_DEVICE", "0")
 CAMERA_WIDTH = int(os.getenv("ROBOARM_CAMERA_WIDTH", "1280"))
