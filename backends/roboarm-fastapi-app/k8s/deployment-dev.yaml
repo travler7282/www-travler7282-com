@@ -20,9 +20,13 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        # Common gid for Linux video devices (/dev/video0) on many distros.
+        # Video device group IDs vary across distros/cloud images.
+        # Keep a small allowlist of common gids so /dev/video* is readable.
         supplementalGroups:
+          - 39
           - 44
+          - 986
+          - 998
         seccompProfile:
           type: RuntimeDefault
       containers:
