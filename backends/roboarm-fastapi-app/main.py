@@ -210,8 +210,8 @@ async def roboarm_ws_terminal(websocket: WebSocket) -> None:
     await websocket.accept()
 
     client: Optional[BleakClient] = None
-    tx_uuid: Optional[str] = None
-    rx_uuid: Optional[str] = None
+    tx_handle: Optional[int] = None
+    rx_handle: Optional[int] = None
     notify_enabled = False
 
     async def _disconnect_client() -> None:
@@ -219,9 +219,9 @@ async def roboarm_ws_terminal(websocket: WebSocket) -> None:
         if not client:
             return
 
-        if client.is_connected and notify_enabled and rx_uuid:
+        if client.is_connected and notify_enabled and rx_handle is not None:
             try:
-                await client.stop_notify(rx_uuid)
+                await client.stop_notify(rx_handle)
             except Exception:
                 logger.debug("stop_notify failed during cleanup", exc_info=True)
             notify_enabled = False
@@ -281,7 +281,7 @@ async def roboarm_ws_terminal(websocket: WebSocket) -> None:
                 services = await ble_client.get_services()
                 services_data: list[dict[str, Any]] = []
                 for service in services:
-                    chars = [char.uuid for char in service.characteristics]
+                    chars = [{"uuid": str(char.uuid), "handle": char.handle} for char in service.characteristics]
                     services_data.append({"uuid": service.uuid, "characteristics": chars})
 
                 await _ws_send_json_safe(
@@ -294,20 +294,20 @@ async def roboarm_ws_terminal(websocket: WebSocket) -> None:
                 )
 
             elif action == "select_io":
-                next_tx_uuid = message.get("tx_uuid")
-                next_rx_uuid = message.get("rx_uuid")
+                next_tx_handle = message.get("tx_handle")
+                next_rx_handle = message.get("rx_handle")
 
-                if not isinstance(next_tx_uuid, str) or not next_tx_uuid.strip():
+                if not isinstance(next_tx_handle, int):
                     await _ws_send_json_safe(
                         websocket,
-                        {"type": "error", "message": "Missing or invalid tx_uuid"},
+                        {"type": "error", "message": "Missing or invalid tx_handle"},
                     )
                     continue
 
-                if not isinstance(next_rx_uuid, str) or not next_rx_uuid.strip():
+                if not isinstance(next_rx_handle, int):
                     await _ws_send_json_safe(
                         websocket,
-                        {"type": "error", "message": "Missing or invalid rx_uuid"},
+                        {"type": "error", "message": "Missing or invalid rx_handle"},
                     )
                     continue
 
@@ -318,34 +318,34 @@ async def roboarm_ws_terminal(websocket: WebSocket) -> None:
                     )
                     continue
 
-                tx_uuid = next_tx_uuid.strip()
+                tx_handle = next_tx_handle
 
-                if notify_enabled and rx_uuid:
+                if notify_enabled and rx_handle is not None:
                     try:
-                        await client.stop_notify(rx_uuid)
+                        await client.stop_notify(rx_handle)
                     except Exception:
                         logger.debug("Failed to stop existing notification", exc_info=True)
                     notify_enabled = False
 
-                rx_uuid = next_rx_uuid.strip()
-                await client.start_notify(rx_uuid, notification_handler)
+                rx_handle = next_rx_handle
+                await client.start_notify(rx_handle, notification_handler)
                 notify_enabled = True
 
                 await _ws_send_json_safe(
                     websocket,
                     {
                         "type": "status",
-                        "message": f"I/O Configured. TX: {tx_uuid}, RX: {rx_uuid}",
+                        "message": f"I/O Configured. TX handle: {tx_handle}, RX handle: {rx_handle}",
                     },
                 )
 
             elif action == "send_hex":
-                if not client or not client.is_connected or not tx_uuid:
+                if not client or not client.is_connected or tx_handle is None:
                     await _ws_send_json_safe(
                         websocket,
                         {
                             "type": "error",
-                            "message": "Connection or TX UUID not set",
+                            "message": "Connection or TX handle not set",
                         },
                     )
                     continue
@@ -376,14 +376,14 @@ async def roboarm_ws_terminal(websocket: WebSocket) -> None:
                     continue
 
                 try:
-                    await client.write_gatt_char(tx_uuid, payload_bytes, response=False)
-                    logger.info(f"Wrote {len(payload_bytes)} bytes to {tx_uuid}")
+                    await client.write_gatt_char(tx_handle, payload_bytes, response=False)
+                    logger.info(f"Wrote {len(payload_bytes)} bytes to handle {tx_handle}")
                     await _ws_send_json_safe(
                         websocket,
                         {"type": "status", "message": "Command Sent"},
                     )
                 except Exception as e:
-                    logger.error(f"Failed to write to characteristic {tx_uuid}: {e}")
+                    logger.error(f"Failed to write to characteristic handle {tx_handle}: {e}")
                     await _ws_send_json_safe(
                         websocket,
                         {"type": "error", "message": f"Write failed: {str(e)}"},

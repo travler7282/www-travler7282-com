@@ -27,7 +27,7 @@ interface BLEDevice {
 
 interface ServiceInfo {
   uuid: string;
-  characteristics: string[];
+  characteristics: Array<{ uuid: string; handle: number }>;
 }
 
 interface WsInboundMessage {
@@ -95,8 +95,8 @@ const App: React.FC = () => {
   const [devices, setDevices] = useState<BLEDevice[]>([]);
   const [scanLoading, setScanLoading] = useState<boolean>(false);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
-  const [txUuid, setTxUuid] = useState<string>('');
-  const [rxUuid, setRxUuid] = useState<string>('');
+  const [txHandle, setTxHandle] = useState<number | null>(null);
+  const [rxHandle, setRxHandle] = useState<number | null>(null);
   const [wsConnected, setWsConnected] = useState<boolean>(false);
   const [services, setServices] = useState<ServiceInfo[]>([]);
   const [hexPayload, setHexPayload] = useState<string>('');
@@ -116,8 +116,8 @@ const App: React.FC = () => {
     setServices([]);
     setDevices([]);
     setSelectedAddress('');
-    setTxUuid('');
-    setRxUuid('');
+    setTxHandle(null);
+    setRxHandle(null);
     setCameraError(false);
   };
 
@@ -131,8 +131,8 @@ const App: React.FC = () => {
     setServices([]);
     setDevices([]);
     setSelectedAddress('');
-    setTxUuid('');
-    setRxUuid('');
+    setTxHandle(null);
+    setRxHandle(null);
     setCameraError(false);
   };
 
@@ -187,11 +187,11 @@ const App: React.FC = () => {
         if (Array.isArray(message.services)) {
           setServices(message.services);
           const chars = message.services.flatMap((service) => service.characteristics);
-          if (!txUuid && chars[0]) {
-            setTxUuid(chars[0]);
+          if (txHandle === null && chars[0]) {
+            setTxHandle(chars[0].handle);
           }
-          if (!rxUuid && chars[1]) {
-            setRxUuid(chars[1]);
+          if (rxHandle === null && chars[1]) {
+            setRxHandle(chars[1].handle);
           }
         }
         return;
@@ -262,12 +262,13 @@ const App: React.FC = () => {
   };
 
   const configureIo = () => {
-    if (!txUuid || !rxUuid) {
-      setStatus('TX and RX UUID are required');
+    if (txHandle === null || rxHandle === null) {
+      setStatus('Please select both TX and RX characteristics');
+      appendTerminal('ERROR both TX and RX handles must be selected');
       return;
     }
-    if (sendSocketMessage({ action: 'select_io', tx_uuid: txUuid, rx_uuid: rxUuid })) {
-      appendTerminal(`Configuring I/O (TX ${txUuid} / RX ${rxUuid})`);
+    if (sendSocketMessage({ action: 'select_io', tx_handle: txHandle, rx_handle: rxHandle })) {
+      appendTerminal(`Configuring I/O (TX handle ${txHandle} / RX handle ${rxHandle})`);
     }
   };
 
@@ -448,22 +449,28 @@ const App: React.FC = () => {
               Connect Device
             </button>
 
-            <label className="field-label" htmlFor="tx-uuid">TX UUID</label>
+            <label className="field-label" htmlFor="tx-handle">TX Handle</label>
             <input
-              id="tx-uuid"
+              id="tx-handle"
               className="field-input"
-              value={txUuid}
-              onChange={(e) => setTxUuid(e.target.value)}
-              placeholder="Characteristic UUID for writes"
+              value={txHandle ?? ''}
+              onChange={(e) => {
+                const val = e.target.value.trim();
+                setTxHandle(val ? parseInt(val, 10) : null);
+              }}
+              placeholder="Characteristic handle for writes"
             />
 
-            <label className="field-label" htmlFor="rx-uuid">RX UUID</label>
+            <label className="field-label" htmlFor="rx-handle">RX Handle</label>
             <input
-              id="rx-uuid"
+              id="rx-handle"
               className="field-input"
-              value={rxUuid}
-              onChange={(e) => setRxUuid(e.target.value)}
-              placeholder="Characteristic UUID for notifications"
+              value={rxHandle ?? ''}
+              onChange={(e) => {
+                const val = e.target.value.trim();
+                setRxHandle(val ? parseInt(val, 10) : null);
+              }}
+              placeholder="Characteristic handle for notifications"
             />
 
             <button type="button" className="action-button action-button-wide" onClick={configureIo}>
@@ -478,15 +485,15 @@ const App: React.FC = () => {
                     <div className="service-uuid">{service.uuid}</div>
                     {service.characteristics.map((characteristic) => (
                       <button
-                        key={`${service.uuid}-${characteristic}`}
+                        key={`${service.uuid}-${characteristic.handle}`}
                         type="button"
                         className="chip-button"
                         onClick={() => {
-                          setTxUuid(characteristic);
-                          setRxUuid(characteristic);
+                          setTxHandle(characteristic.handle);
+                          setRxHandle(characteristic.handle);
                         }}
                       >
-                        {characteristic}
+                        {characteristic.uuid.substring(0, 8)} (h:{characteristic.handle})
                       </button>
                     ))}
                   </div>
