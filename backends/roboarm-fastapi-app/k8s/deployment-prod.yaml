@@ -37,6 +37,9 @@ spec:
               add:
                 - NET_RAW
           imagePullPolicy: IfNotPresent
+          env:
+            - name: ROBOARM_CORS_ALLOWED_ORIGINS
+              value: https://travler7282.com,https://www.travler7282.com
           ports:
             - containerPort: 8000
           resources:
