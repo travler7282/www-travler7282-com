@@ -32,8 +32,7 @@ spec:
       containers:
         - name: roboarm-fastapi-app
           image: docker.io/travler7282/roboarm-fastapi-app:0.1.0
-          securityContext:
-            # Completely block privilege escalation
+          securityContext:          privileged: true            # Completely block privilege escalation
             allowPrivilegeEscalation: false
             # Make the contain's own files unchangeable at runtime
             readOnlyRootFilesystem: true
