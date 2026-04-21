@@ -24,16 +24,16 @@ app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({ origin: corsOrigin }));
 app.use(express_1.default.json({ limit: '512kb' }));
 app.use((0, morgan_1.default)('combined'));
-app.get('/healthz', (_req, res) => {
+app.get(['/healthz', '/srdx/api/v1/healthz'], (_req, res) => {
     res.status(200).json({ status: 'ok' });
 });
-app.get('/readyz', (_req, res) => {
+app.get(['/readyz', '/srdx/api/v1/readyz'], (_req, res) => {
     res.status(200).json({ ready: true, service: 'sdr-express-app' });
 });
-app.get('/api/sdr/status', (_req, res) => {
+app.get(['/api/sdr/status', '/srdx/api/v1/status', '/srdx/api/v1/api/sdr/status'], (_req, res) => {
     res.status(200).json(sdrState);
 });
-app.post('/api/sdr/tune', (req, res) => {
+app.post(['/api/sdr/tune', '/srdx/api/v1/tune', '/srdx/api/v1/api/sdr/tune'], (req, res) => {
     const { frequencyHz, bandwidthHz, gainDb, sampleRateHz, mode } = req.body;
     if (typeof frequencyHz === 'number') {
         if (!Number.isFinite(frequencyHz) || frequencyHz < 100000 || frequencyHz > 6000000000) {
