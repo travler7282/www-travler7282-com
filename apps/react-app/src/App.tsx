@@ -263,10 +263,10 @@ const App: React.FC = () => {
           const firstWithHandle = chars.find((char) => char.handle !== null);
           const secondWithHandle = chars.filter((char) => char.handle !== null)[1] ?? firstWithHandle;
 
-          if (txHandle === null && firstWithHandle?.handle !== null) {
+          if (txHandle === null && firstWithHandle && firstWithHandle.handle !== null) {
             setTxHandle(firstWithHandle.handle);
           }
-          if (rxHandle === null && secondWithHandle?.handle !== null) {
+          if (rxHandle === null && secondWithHandle && secondWithHandle.handle !== null) {
             setRxHandle(secondWithHandle.handle);
           }
         }
