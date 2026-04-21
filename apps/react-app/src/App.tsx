@@ -59,12 +59,12 @@ interface WsInboundMessage {
 type BackendPreset = 'current' | 'dev' | 'local' | 'custom';
 
 const SERVO_IDS: Record<ArmJoint, number> = {
-  baseRotate: 1,
-  shoulderBend: 2,
-  elbowBend: 3,
-  wristBend: 4,
-  gripperRotate: 5,
-  gripperClaw: 6,
+  baseRotate: 6,
+  shoulderBend: 5,
+  elbowBend: 4,
+  wristBend: 3,
+  gripperRotate: 2,
+  gripperClaw: 1,
 };
 
 const DEFAULT_JOINTS: ArmState = {
@@ -263,10 +263,10 @@ const App: React.FC = () => {
           const firstWithHandle = chars.find((char) => char.handle !== null);
           const secondWithHandle = chars.filter((char) => char.handle !== null)[1] ?? firstWithHandle;
 
-          if (txHandle === null && firstWithHandle?.handle !== null) {
+          if (txHandle === null && firstWithHandle && firstWithHandle.handle !== null) {
             setTxHandle(firstWithHandle.handle);
           }
-          if (rxHandle === null && secondWithHandle?.handle !== null) {
+          if (rxHandle === null && secondWithHandle && secondWithHandle.handle !== null) {
             setRxHandle(secondWithHandle.handle);
           }
         }
