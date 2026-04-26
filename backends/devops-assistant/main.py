@@ -21,6 +21,16 @@ app = FastAPI()
 
 db = get_db()
 
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
+@app.get("/readyz")
+def readyz():
+    return {"status": "ready"}
+
 @app.post("/logs")
 async def add_logs(
     request: Request,
