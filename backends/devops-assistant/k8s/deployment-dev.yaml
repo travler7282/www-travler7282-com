@@ -25,6 +25,18 @@ data:
       max_age_seconds: 86400   # 24 hours
       cleanup_interval_seconds: 300  # every 5 minutes
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chroma-pvc-dev
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
