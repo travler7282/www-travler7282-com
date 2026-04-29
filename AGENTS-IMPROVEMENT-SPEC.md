@@ -93,6 +93,11 @@ Claude, and Copilot sessions to confirm they are loaded as expected.
 The backend API exists, but there is no dedicated frontend workspace to provide
 an interactive UI for log ingestion, query prompts, and response display.
 
+### 3. Production secrets need environment-specific values
+`ai-devops-secrets-prod` was created to restore availability and currently
+mirrors non-prod values. Rotate to true production credentials and retire any
+temporary/shared keys.
+
 ---
 
 ## What's Wrong
@@ -153,5 +158,6 @@ Add a new workspace under `apps/devops-assistant` (Vite + TypeScript) with:
 
 | Priority | Item | Effort |
 |---|---|---|
+| P0 | Rotate `ai-devops-secrets-prod` to true prod values and retire temporary/shared keys | 15-30 min |
 | P0 | Create frontend app for `devops-assistant` backend | 3-5 hours |
 | P2 | Validate adapter loading in Cursor/Claude/Copilot sessions | 15 min |
