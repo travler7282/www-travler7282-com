@@ -44,3 +44,24 @@ Update image in `k8s/deployment.yaml`, then:
 kubectl apply -f backends/sdr-express-app/k8s/deployment.yaml
 kubectl rollout status deployment/sdr-express-app
 ```
+
+## Endpoints
+
+All endpoints are available at both the root and under `/srdx/api/v1`.
+
+### GET /healthz
+- Health check
+- Response: `{ "status": "ok" }`
+
+### GET /readyz
+- Readiness check
+- Response: `{ "ready": true, "service": "sdr-express-app" }`
+
+### GET /api/sdr/status
+- Returns current SDR state
+- Response: JSON object with frequency, bandwidth, gain, etc.
+
+### POST /api/sdr/tune
+- Tunes SDR to new parameters
+- Request body: `{ "frequencyHz": number, "bandwidthHz": number, "gainDb": number, "sampleRateHz": number, "mode": "AM"|"FM"|... }`
+- Response: updated SDR state or error

@@ -1,4 +1,4 @@
-# AI-DEVOPS-ASSISTANT
+# AI-DEVOPS-ASSISTANT (WIP)
 This directory is the ai-devops-assistant backend. This backend provides FastAPI
 services with a simple API with documentation available at the /docs endpoint.
 
@@ -65,3 +65,31 @@ kubectl create secret generic ai-devops-secrets-prod \
 ```
 
 If secrets already exist and must be rotated, delete and recreate them.
+
+## Endpoints
+
+All endpoints are available under `/devops-assistant/api/v1`.
+
+### GET /devops-assistant/api/v1/healthz
+- Health check
+- Response: `{ "status": "ok" }`
+
+### GET /devops-assistant/api/v1/readyz
+- Readiness check
+- Response: `{ "status": "ready" }`
+
+### POST /devops-assistant/api/v1/logs
+- Ingests raw log text (body)
+- Requires API key (header)
+- Response: `{ "added": <count> }`
+
+### GET /devops-assistant/api/v1/ask?question=... 
+- Answers a question about logs
+- Query param: `question` (string)
+- Requires API key (header)
+- Response: `{ "answer": "..." }`
+
+### DELETE /devops-assistant/api/v1/logs
+- Clears all logs from the database
+- Requires API key (header)
+- Response: `{ "status": "Logs cleared" }`
