@@ -55,7 +55,7 @@ jobs:
         env:
           PROTECTED_PREFIXES: ${{ vars.AWS_PROTECTED_PREFIXES }}
         run: |
-          protected_prefixes="${PROTECTED_PREFIXES:-roboarm,wxstation,sdrx,springtime}"
+          protected_prefixes="${PROTECTED_PREFIXES:-apps}"
           IFS=',' read -ra raw_prefixes <<< "$protected_prefixes"
           exclude_args=()
 
